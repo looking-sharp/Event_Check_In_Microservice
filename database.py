@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from flask import jsonify
 from datetime import datetime, timedelta
 import os
+import secrets
 
 from models import Base, Form, FormField # Import from models.py
 
@@ -85,12 +86,21 @@ def find_in_db(session: Session, model, **filters):
     """
     return session.query(model).filter_by(**filters).first()
 
+def create_url_id(session: Session, length: int = 12) -> str:
+    """Create short for URL"""
+    _id = secrets.token_urlsafe(length)[:length]
+    while session.query(Form).filter(Form.url_id == _id).first() is not None:
+        _id = secrets.token_urlsafe(length)[:length]
+    return _id
+    
+
 def create_form_from_json(session: Session, data: dict):
     #Verify data
 
     # Create Form
     form = Form(
         event_id=data.get("event_id"),
+        url_id = create_url_id(session),
         form_name=data.get("event_name"),
         delete_on= datetime.fromisoformat(data.get("event_date")) + timedelta(days=1),
         submissions=[]
@@ -113,6 +123,7 @@ def create_form_from_json(session: Session, data: dict):
     data = {
         "message": "form created successfully",
         "form_id": form.id,
+        "form_url_id": form.url_id,
         "form_expires_on": form.delete_on
     }
     return jsonify(data), 200

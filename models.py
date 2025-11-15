@@ -19,6 +19,7 @@ class Form(Base):
     __tablename__ = "forms"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_id = Column(String(12), nullable=False)
+    url_id = Column(String(12), nullable=False)
     form_name = Column(String(255), nullable=False)
     
     submissions = Column(MutableList.as_mutable(JSON), default=list)

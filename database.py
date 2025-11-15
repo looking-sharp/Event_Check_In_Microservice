@@ -78,14 +78,6 @@ def add_to_db(session, instance, return_bool=False):
             return False
         raise e
 
-
-def find_in_db(session: Session, model, **filters):
-    """
-    Generic function to find a record in any table using keyword filters.
-    Example: find_in_db(db, User, email="user@example.com")
-    """
-    return session.query(model).filter_by(**filters).first()
-
 def create_url_id(session: Session, length: int = 12) -> str:
     """Create short for URL"""
     _id = secrets.token_urlsafe(length)[:length]
@@ -96,6 +88,20 @@ def create_url_id(session: Session, length: int = 12) -> str:
 
 def create_form_from_json(session: Session, data: dict):
     #Verify data
+    expected_keys = ["event_id", "event_name", "event_date", "fields"]
+    for key in expected_keys:
+        if data.get(key) is None:
+            return jsonify({"message": f"Request must include {key}"}), 400
+
+    for key, value in data.items():
+        if key not in expected_keys:
+            return jsonify({"message": f"Unexpcted Key: {key} found"}), 400
+        elif value == None:
+            return jsonify({"message": f"{key} cannot be None"}), 400
+
+    for field in data.get("fields"):
+        if field.get("label") is None:
+            return jsonify({"message": "All fields must have a label"}), 400
 
     # Create Form
     form = Form(
@@ -109,10 +115,12 @@ def create_form_from_json(session: Session, data: dict):
     session.add(form)
     session.flush()
 
+    id_itr = 0
     for field in data.get("fields", []):
+        id_itr = id_itr + 1
         new_field = FormField(
             form_id = form.id,
-            field_id = field.get("field_id"),
+            field_id = field.get("field_id", id_itr),
             field_type = field.get("field_type", "text"),
             label = field.get("label"),
             required = field.get("required", False)

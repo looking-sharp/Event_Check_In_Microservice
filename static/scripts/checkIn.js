@@ -27,8 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             else {
                 // Parse Data
-
-
+                const name = document.getElementById(`form-name-${form_id}`);
+                name.textContent = `Check In for: ${data.form_name}`;
+                data.fields.forEach(field => {
+                    console.log(field)
+                    form.innerHTML += `
+                    <label for="${field.label}">${field.label}:</label>
+                    <input type="${field.field_type}" id="${field.field_id}" name="${field.label}" maxlength="255" ${field.required ? "required" : ""}>
+                    `;
+                });
+                form.innerHTML += `<button type="submit">Check In</button>`;
                 setTimeout(() => {
                     content.style.display = "block";
                     loading.style.display = "none";

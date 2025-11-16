@@ -3,32 +3,6 @@ form {
   margin: auto; 
 }
 
-label { 
-  display: inline-block; 
-  margin-top: 1em; 
-}
-
-input, textarea {
-  width: 95%; 
-  padding: 0.5em; 
-  margin-top: 0.2em; 
-}
-
-.side_div {
-  display:flex;
-  align-items: baseline;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-.side_label {
-  width:80%;
-}
-
-.side_text {
-  width:20%;
-}
-
 button { 
   margin-top: 1.5em; 
   padding: 0.7em 1.5em; 
@@ -37,15 +11,22 @@ button {
 label {
   display: flex;
   align-items: center;
-  gap: 8px; /* space between text and checkbox */
+  gap: 8px;
+  margin-top: 1em;
+  position: relative; 
+}
+
+input, textarea {
+  width: 95%; 
+  padding: 0.5em; 
+  margin-top: 0.2em;
 }
 
 input[type=checkbox], input[type=radio] {
-  margin: 0;
   width: 1.3em;
   height: 1.3em;
-  position: absolute;
-  margin-left: 475px;
+  margin: 0; 
+  position: static;
 }
 
 .loading {
@@ -71,60 +52,6 @@ main {
   width: 100%;
 }
 
-td, th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-th {
-  position: sticky;
-  top: -1px;
-}
-
-tr:nth-child(even){background-color: #f2f2f2;}
-
-tr:hover {
-  background-color: #ddd;
-  cursor: default;
-}
-
-th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #04AA6D;
-  color: white;
-}
-
-.select-items {
-  position: absolute;
-  background-color: #f2f2f2;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 99;
-}
-
-/*hide the items when the select box is closed:*/
-.select-hide {
-  display: none;
-}
-
-.select-items div:hover, .same-as-selected {
-  background-color: rgba(0, 0, .9, 0.1);
-}
-/*
-footer {
-  text-align: center;
-  padding: 12px;
-  background-color: #423e3c;
-  margin-top: 20px;
-  color: white;
-}
-*/
 label {
   font-family: sans-serif;
   font-size: 1rem;
@@ -175,44 +102,6 @@ header h1 {
   color: white;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  overflow: auto;
-  display: block;
-}
-
-table {
-  display: table;
-  width: 99.9%;
-}
-
-.Data-Div {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 80%;
-  float: left;
-}
-
-.Delete-Div {
-  display: inline-flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  min-width: 20%;
-  margin-bottom: 20px;
-}
-
-.Info-Div {
-  display: table;
-  width:100%;
-}
-
-.Data-Div p {
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-
 html, body {
   height: 100%;
   margin: 1em;
@@ -244,15 +133,6 @@ footer {
   margin-top: 2em;
 }
 
-.rsvp-table-div {
-  display: block;
-  overflow: hidden;
-  overflow-y: scroll;
-  max-height: 225px;
-  margin-bottom: 20px;
-  scrollbar-gutter: stable;
-}
-
 .status-ok {
   color: green;
   font-weight: bold;
@@ -274,4 +154,9 @@ footer {
 
 .status-unknown {
   color: gray;
+}
+
+.form-main h2 {
+  word-wrap: break-word;
+  width: 600px;
 }

@@ -13,16 +13,19 @@
 </header>
 <body class="fixed-body">
     <span id="form_id" style="display: none;">{{ form_id }}</span>
-    <div id="loading" class=".fixed" style="display: grid;">
+    <div id="loading-{{ form_id }}" class="fixed loading" style="display: grid;">
       <p>Fetching Check In Details</p>
       <svg fill="rgb(4, 170, 109)" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"><animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/></path></svg>
     </div>
-    <div id="content">
+    <div id="content-{{ form_id }}">
+      <h1 id="form-name-{{ form_id }}"></h1>
+      <form id="form-holder-{{ form_id }}" action="#" method="post">
 
+      </form>
     </div>
-    <div class="fixed" id="error" style="display: none; margin: auto;">
-      <h1>Response: <span id="response-span"></span></h1>
-      <p id="message-p"></p>
+    <div class="fixed" id="error-{{ form_id }}" style="display: none; margin: auto;">
+      <h1 style="text-align: center;">Response: <span id="response-span-{{ form_id }}"></span></h1>
+      <p style="text-align: center;" id="message-p-{{ form_id }}"></p>
     </div>
     <footer>
         Website by Thomas Sharp

@@ -48,13 +48,13 @@ input[type=checkbox], input[type=radio] {
   margin-left: 475px;
 }
 
-#loading {
+.loading {
   flex: 1;
   margin: auto;
   align-content: center;
 }
 
-#loading svg {
+.loading svg {
   width: 55px;
   height: auto;
   margin: auto;
@@ -251,10 +251,6 @@ footer {
   max-height: 225px;
   margin-bottom: 20px;
   scrollbar-gutter: stable;
-}
-
-#error h1, p {
-  text-align: center;
 }
 
 .status-ok {

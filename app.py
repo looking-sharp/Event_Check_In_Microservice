@@ -84,8 +84,22 @@ def get_event(form_id):
 @app.route("/submit-check-in-form", methods=["POST"])
 def submit_check_in_form():
     form_id = request.form.get("form_id")
-    print(form_id)
-    return jsonify({"message": f"{form_id}"}), 200
+    with get_db() as db:
+        form = db.query(Form).filter(Form.url_id == form_id).first()
+
+        if not form:
+            return jsonify({"message": "Form not found", "status_code": 404}), 404
+        
+        # create list of all the names of th fields in the form
+        field_names = [f.field_name for f in form.fields]
+        submission = {}
+        for name in field_names:
+            out = request.form.get(f"{name}")
+            submission[f"{name}"] = out if out != '' else None
+        
+        form.submissions.append(submission)
+
+    return jsonify({"message": f"submission for: {form_id} complete", "submission": submission}), 201
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5003"))

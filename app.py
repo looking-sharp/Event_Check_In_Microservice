@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, redirect, url_for, render_template, request 
 from flask_cors import CORS
 from database import init_db, get_db, create_form_from_json
+from models import Form, FormField
 import os
 
 app = Flask(__name__)
@@ -42,6 +43,39 @@ def create_form():
     data = request.get_json(force=True, silent=True) or {}
     with get_db() as db:
         return create_form_from_json(db, data)
+
+@app.route("/check-in/<form_id>", methods=["GET", "POST"])
+def check_in(form_id):
+    if request.method == "GET":
+        return render_template("checkIn.html", form_id=form_id)
+
+@app.route("/get-form/<form_id>", methods=["GET"])
+def get_event(form_id):
+    with get_db() as db:
+        form = db.query(Form).filter(Form.url_id == form_id).first()
+
+        if not form:
+            return jsonify({"message": "Form not found", "status_code": 404}), 404
+        
+        result = {
+            "id": str(form.id),
+            "event_id": form.event_id,
+            "url_id": form.url_id,
+            "form_name": form.form_name,
+            "submissions": form.submissions or [],
+            "fields": [
+                {
+                    "id": str(f.id),
+                    "field_id": f.field_id,
+                    "field_type": f.field_type,
+                    "label": f.label,
+                    "required": f.required,
+                }
+                for f in form.fields
+            ],
+            "status_code": 200
+        }
+        return jsonify(result), 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5003"))

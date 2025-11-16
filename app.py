@@ -31,6 +31,7 @@ def health():
                 {
                     "field_id": "string",
                     "field_type": "string",
+                    "field_name": "string",
                     "label": "string",
                     "required": "boolean"
                 },
@@ -68,14 +69,23 @@ def get_event(form_id):
                     "id": str(f.id),
                     "field_id": f.field_id,
                     "field_type": f.field_type,
+                    "field_name": f.field_name,
                     "label": f.label,
+                    "value": f.value,
                     "required": f.required,
+                    "options": f.options
                 }
                 for f in form.fields
             ],
             "status_code": 200
         }
         return jsonify(result), 200
+
+@app.route("/submit-check-in-form", methods=["POST"])
+def submit_check_in_form():
+    form_id = request.form.get("form_id")
+    print(form_id)
+    return jsonify({"message": f"{form_id}"}), 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5003"))

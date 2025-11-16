@@ -4,6 +4,61 @@ const content = document.getElementById(`content-${form_id}`);
 const error = document.getElementById(`error-${form_id}`);
 const form = document.getElementById(`form-holder-${form_id}`)
 
+const side_by_side_elements = ["checkbox", "number", "color", "radio", "date", "time", "datetime-local", "datetime"];
+
+function addField(field) {
+    if(field.options != null) {
+        const options = field.options.split(",");
+        if(field.field_type != "select") {
+            var newInnerHtml = "";
+            newInnerHtml += `<fieldset><legend>${field.label}</legend>`;
+            options.forEach(option => {
+                newInnerHtml += `
+                <div class="side-by-side-div">
+                <label for="${option}">${option}</label>
+                <input type="${field.field_type}" id="${field.field_id}" name="${option}" ${field.required ? "required" : ""}>
+                </div>`;
+            });
+            newInnerHtml += `</fieldset>`;
+            form.innerHTML += newInnerHtml;
+        }
+        else {
+            var newInnerHtml = "";
+            newInnerHtml += 
+            `<div class="side-by-side-div"><label for="${field.label}">${field.label}:</label>
+             <select id="${field.field_id}" name="${field.field_name}">`;
+            options.forEach(option => {
+                newInnerHtml += `
+                <option value="${option}">${option}</option>`;
+            });
+            newInnerHtml += `</select></div>`
+            form.innerHTML += newInnerHtml;
+        }
+    }
+    else if (field.field_type == "hidden") {
+        form.innerHTML += `
+        <label style="display: none;" for="${field.label}">${field.label}:</label>
+        <input type="${field.field_type}" id="${field.field_id}" name="${field.field_name}" ${field.required ? "required" : ""}>`;
+    }
+    else if (field.field_type == "textarea") {
+        form.innerHTML += `
+        <label for="${field.label}">${field.label}:</label>
+        <textarea id="${field.field_id}" name="${field.field_name}" ${field.required ? "required" : ""} rows="5" cols="50"></textarea>`;
+    }
+    else if(side_by_side_elements.includes(field.field_type)) {
+        form.innerHTML += `
+        <div class="side-by-side-div">
+        <label for="${field.label}">${field.label}:</label>
+        <input type="${field.field_type}" id="${field.field_id}" name="${field.field_name}" maxlength="255" ${field.required ? "required" : ""}>
+        </div>`;
+    }
+    else {
+        form.innerHTML += `
+        <label for="${field.label}">${field.label}:</label>
+        <input type="${field.field_type}" id="${field.field_id}" name="${field.field_name}" maxlength="255" ${field.required ? "required" : ""}>`;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     fetch(`/get-form/${form_id}`)
         .then(response => response.json())
@@ -30,11 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const name = document.getElementById(`form-name-${form_id}`);
                 name.textContent = `Check In for: ${data.form_name}`;
                 data.fields.forEach(field => {
-                    console.log(field)
-                    form.innerHTML += `
-                    <label for="${field.label}">${field.label}:</label>
-                    <input type="${field.field_type}" id="${field.field_id}" name="${field.label}" maxlength="255" ${field.required ? "required" : ""}>
-                    `;
+                    console.log(field);
+                    addField(field);
                 });
                 form.innerHTML += `<button type="submit">Check In</button>`;
                 setTimeout(() => {

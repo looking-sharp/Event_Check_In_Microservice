@@ -26,7 +26,7 @@ class Form(Base):
     created_on = Column(DateTime(timezone=True), default=utcnow, nullable=False)
     delete_on = Column(DateTime(timezone=True), nullable=True)
 
-    fields = relationship("FormField", back_populates="form", cascade="all, delete-orphan", lazy="joined")
+    fields = relationship("FormField", back_populates="form", cascade="all, delete-orphan", lazy="joined", order_by="FormField.position")
 
 
 class FormField(Base):
@@ -34,9 +34,13 @@ class FormField(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     form_id = Column(UUID(as_uuid=True), ForeignKey("forms.id", ondelete="CASCADE"), nullable=False)
 
+    position = Column(Integer, nullable=False, index=True)
     field_id = Column(String(255), nullable=False)
     field_type = Column(String(50), nullable=False)
+    field_name = Column(String(50), nullable=False)
     label = Column(String(255), nullable=False)
     required = Column(Boolean, default=False)
+    value = Column(String(50), nullable=True)
+    options = Column(Text, nullable=True)
 
     form = relationship("Form", back_populates="fields")

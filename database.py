@@ -89,6 +89,7 @@ def create_url_id(session: Session, length: int = 12) -> str:
 def create_form_from_json(session: Session, data: dict):
     #Verify data
     expected_keys = ["event_id", "event_name", "event_date", "fields"]
+    allowed_field_types = ["text", "password", "email", "number", "tel", "url", "date", "time", "datetime", "datetime-local", "color", "range", "textarea", "checkbox", "radio", "select", "file", "hidden"]
     for key in expected_keys:
         if data.get(key) is None:
             return jsonify({"message": f"Request must include {key}"}), 400
@@ -100,8 +101,14 @@ def create_form_from_json(session: Session, data: dict):
             return jsonify({"message": f"{key} cannot be None"}), 400
 
     for field in data.get("fields"):
-        if field.get("label") is None:
-            return jsonify({"message": "All fields must have a label"}), 400
+        cur_id = field["field_id"]
+        cur_type = field.get("field_type")
+        if field.get("field_type") not in allowed_field_types:
+            return jsonify({"message": f"Field with ID: {cur_id} unrecognized field type: {cur_type}"}), 400
+        elif field.get("label") is None: 
+            return jsonify({"message": f"Field with ID: {cur_id} is missing attribute: 'label'"}), 400
+        elif field.get("field_name") is None:
+            return jsonify({"message": f"Field with ID: {cur_id} is missing attribute: 'field_name'"}), 400
 
     # Create Form
     form = Form(
@@ -118,12 +125,20 @@ def create_form_from_json(session: Session, data: dict):
     id_itr = 0
     for field in data.get("fields", []):
         id_itr = id_itr + 1
+        options = None
+        if field.get("options"):
+            options = ",".join(field.get("options"))
+
         new_field = FormField(
             form_id = form.id,
+            position = id_itr,
             field_id = field.get("field_id", id_itr),
             field_type = field.get("field_type", "text"),
+            field_name = field.get("field_name"),
             label = field.get("label"),
-            required = field.get("required", False)
+            required = field.get("required", False),
+            value = field.get("value", None),
+            options = options
         )
         session.add(new_field)
     

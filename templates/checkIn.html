@@ -19,8 +19,8 @@
     </div>
     <div id="content-{{ form_id }}" style="display: none; margin: auto;" class="form-main">
       <h2 id="form-name-{{ form_id }}"></h2>
-      <form id="form-holder-{{ form_id }}" action="#" method="post">
-      
+      <form id="form-holder-{{ form_id }}" action="/submit-check-in-form" method="post">
+        <input type="hidden" value="{{ form_id }}" name="form_id">
       </form>
     </div>
     <div class="fixed" id="error-{{ form_id }}" style="display: none; margin: auto;">

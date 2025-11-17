@@ -14,6 +14,7 @@ from models import Base, Form, FormField # Import from models.py
 # ------------------------
 
 load_dotenv()
+DELETE_AFTER_DAYS = 7
 
 # Path setup
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -112,11 +113,11 @@ def create_form_from_json(session: Session, data: dict):
 
     # Create Form
     form = Form(
-        event_id=data.get("event_id"),
+        event_id = data.get("event_id"),
         url_id = create_url_id(session),
-        form_name=data.get("event_name"),
-        delete_on= datetime.fromisoformat(data.get("event_date")) + timedelta(days=1),
-        submissions=[]
+        form_name = data.get("event_name"),
+        delete_on = datetime.fromisoformat(data.get("event_date")) + timedelta(days=DELETE_AFTER_DAYS),
+        submissions = []
     )
 
     session.add(form)

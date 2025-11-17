@@ -3,6 +3,7 @@ from flask_cors import CORS
 from database import init_db, get_db, create_form_from_json
 from models import Form, FormField
 from qrcode_generator import create_qr_code
+from scheduler import start_scheduler
 import os
 import uuid
 
@@ -170,4 +171,5 @@ def check_submissions():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5003"))
     init_db()
+    start_scheduler()
     app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)

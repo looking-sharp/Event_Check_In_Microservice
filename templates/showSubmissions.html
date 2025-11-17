@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/checkIn.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/submissions.css') }}">
+  <link rel="manifest" href="{{ url_for('static',filename='favicon_io/site.webmanifest')}}">
+  <title>Submissions</title>
+</head>
+<body class="fixed-body">
+    <div class="table-container">
+        <table>
+            <caption>Submissions for "{{ form.form_name }}"</caption>
+            <thead>
+                <tr>
+                    {% if submissions %}
+                        {% for field in form.fields %}
+                            <th>{{ field.field_name }}</th>
+                        {% endfor %}
+                    {% else %}
+                        <th>No submissions yet</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        {% for field in form.fields %}
+                            {% set value = submission.get(field.field_name) %}
+                            <td{% if value is none %} class="none-field"{% endif %}>
+                                {% if value is iterable and value is not string %}
+                                    {{ ", ".join(value) }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -11,12 +11,14 @@ function addField(field) {
         const options = field.options.split(",");
         if(field.field_type != "select") {
             var newInnerHtml = "";
+            var optionNum = 0;
             newInnerHtml += `<fieldset><legend>${field.label}</legend>`;
             options.forEach(option => {
+                optionNum++;
                 newInnerHtml += `
                 <div class="side-by-side-div">
                 <label for="${option}">${option}</label>
-                <input type="${field.field_type}" id="${field.field_id}" name="${option}" ${field.required ? "required" : ""}>
+                <input type="${field.field_type}" id="${field.field_id}" value="${option}" name="${field.field_name}" ${field.required && optionNum==1 ? "required" : ""}>
                 </div>`;
             });
             newInnerHtml += `</fieldset>`;

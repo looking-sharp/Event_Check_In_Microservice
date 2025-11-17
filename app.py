@@ -2,6 +2,7 @@ from flask import Flask, jsonify, redirect, url_for, render_template, request
 from flask_cors import CORS
 from database import init_db, get_db, create_form_from_json
 from models import Form, FormField
+from qrcode_generator import create_qr_code
 import os
 import uuid
 
@@ -45,6 +46,28 @@ def create_form():
     data = request.get_json(force=True, silent=True) or {}
     with get_db() as db:
         return create_form_from_json(db, data)
+
+@app.route("/get-check-in-front-page", methods=["GET"])
+def get_front_page():
+    form_id = request.args.get("formID")
+    if not form_id:
+        return jsonify({"message": "no form ID provided"}), 400
+    
+    try:
+        form_uuid = uuid.UUID(form_id.strip('"'))
+    except ValueError:
+        return jsonify({"message": "Invalid UUID format"}), 400
+
+    with get_db() as db:
+        form = db.query(Form).filter(Form.id == form_uuid).first()
+
+        if not form:
+            return jsonify({"message": "Form not found", "status_code": 404}), 404
+        
+        url = f"{request.host_url}check-in/{form.url_id}"
+        qr = create_qr_code(url)
+        return render_template("frontPage.html", svg_str=qr, url=url, event_name=form.form_name)
+
 
 @app.route("/check-in/<form_id>", methods=["GET", "POST"])
 def check_in(form_id):

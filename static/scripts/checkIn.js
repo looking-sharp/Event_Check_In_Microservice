@@ -12,7 +12,7 @@ function addField(field) {
         if(field.field_type != "select") {
             var newInnerHtml = "";
             var optionNum = 0;
-            newInnerHtml += `<fieldset><legend>${field.label}</legend>`;
+            newInnerHtml += `<fieldset><legend>${field.label}<span class="required">${field.required ? " *" : ""}</span></legend>`;
             options.forEach(option => {
                 optionNum++;
                 newInnerHtml += `
@@ -27,7 +27,7 @@ function addField(field) {
         else {
             var newInnerHtml = "";
             newInnerHtml += 
-            `<div class="side-by-side-div"><label for="${field.label}">${field.label}:</label>
+            `<div class="side-by-side-div"><label for="${field.label}">${field.label}:<span class="required">${field.required ? "*" : ""}</span></label>
              <select id="${field.field_id}" name="${field.field_name}">`;
             options.forEach(option => {
                 newInnerHtml += `
@@ -39,24 +39,24 @@ function addField(field) {
     }
     else if (field.field_type == "hidden") {
         form.innerHTML += `
-        <label style="display: none;" for="${field.label}">${field.label}:</label>
+        <label style="display: none;" for="${field.label}">${field.label}:<span class="required">${field.required ? "*" : ""}</span></label>
         <input type="${field.field_type}" id="${field.field_id}" name="${field.field_name}" ${field.required ? "required" : ""}>`;
     }
     else if (field.field_type == "textarea") {
         form.innerHTML += `
-        <label for="${field.label}">${field.label}:</label>
+        <label for="${field.label}">${field.label}:<span class="required">${field.required ? "*" : ""}</span></label>
         <textarea id="${field.field_id}" name="${field.field_name}" ${field.required ? "required" : ""} rows="5" cols="50"></textarea>`;
     }
     else if(side_by_side_elements.includes(field.field_type)) {
         form.innerHTML += `
         <div class="side-by-side-div">
-        <label for="${field.label}">${field.label}:</label>
+        <label for="${field.label}">${field.label}:<span class="required">${field.required ? "*" : ""}</span></label>
         <input type="${field.field_type}" id="${field.field_id}" name="${field.field_name}" maxlength="255" ${field.required ? "required" : ""}>
         </div>`;
     }
     else {
         form.innerHTML += `
-        <label for="${field.label}">${field.label}:</label>
+        <label for="${field.label}">${field.label}:<span class="required">${field.required ? "*" : ""}</span></label>
         <input type="${field.field_type}" id="${field.field_id}" name="${field.field_name}" maxlength="255" ${field.required ? "required" : ""}>`;
     }
 }

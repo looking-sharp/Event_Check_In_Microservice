@@ -191,3 +191,7 @@ input[type=number], input[type=time], input[type=date], input[type=datetime], in
 input[type=color]{
   width: 100px;
 }
+
+.required {
+  color: red;
+}

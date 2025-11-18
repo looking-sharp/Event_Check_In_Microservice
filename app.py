@@ -4,6 +4,7 @@ from database import init_db, get_db, create_form_from_json
 from models import Form, FormField
 from qrcode_generator import create_qr_code
 from scheduler import start_scheduler
+from premailer import Premailer
 import os
 import uuid
 
@@ -134,16 +135,48 @@ def submit_check_in_form():
 
     return jsonify({"message": f"submission for: {form_id} complete", "submission": submission}), 201
 
+def get_submissions_html(form_uuid) -> str:
+    with get_db() as db:
+        form = db.query(Form).filter(Form.id == form_uuid).first()
+        if not form:
+            return "Form not found"
+        
+        form_data = {
+            "url_id": form.url_id,
+            "event_id": form.event_id,
+            "form_name": form.form_name,
+            "fields": [
+                {
+                    "field_id": f.field_id,
+                    "field_type": f.field_type,
+                    "field_name": f.field_name,
+                }
+                for f in form.fields
+            ]
+        }
+        submissions = form.submissions
+        html_str = render_template("showSubmissions.html", submissions=submissions, form=form_data)
+        p = Premailer(
+            html_str,
+            base_url=request.host_url,
+            allow_loading_external_files=True,
+        )
+        html_inlined = p.transform()
+        return html_inlined.replace("\n", "")
+
 @app.route("/check-submissions", methods=["GET"])
 def check_submissions():
     form_id = request.args.get("formID")
     if not form_id:
         return jsonify({"message": "no form ID provided"}), 400
-    
     try:
         form_uuid = uuid.UUID(form_id.strip('"'))
     except ValueError:
         return jsonify({"message": "Invalid UUID format"}), 400
+    
+    asString = request.args.get("asString")
+    if bool(asString):
+        return jsonify({"html": get_submissions_html(form_uuid)}), 200
 
     with get_db() as db:
         form = db.query(Form).filter(Form.id == form_uuid).first()
@@ -167,6 +200,26 @@ def check_submissions():
 
         submissions = form.submissions
         return render_template("showSubmissions.html", submissions=submissions, form=form_data)
+
+@app.route("/delete-form", methods=["POST"])
+def delete_form():
+    form_id = request.args.get("formID")
+    if not form_id:
+        return jsonify({"message": "no form ID provided"}), 400
+    
+    try:
+        form_uuid = uuid.UUID(form_id.strip('"'))
+    except ValueError:
+        return jsonify({"message": "Invalid UUID format"}), 400
+
+    with get_db() as db:
+        form = db.query(Form).filter(Form.id == form_uuid).first()
+
+        if not form:
+            return jsonify({"message": "Form not found", "status_code": 404}), 404
+        
+        db.delete(form)
+        return jsonify({"message": "Form sucessfully deleted"}), 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5003"))

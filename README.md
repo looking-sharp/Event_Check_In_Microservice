@@ -10,8 +10,10 @@ A microservice that generates check in links, QR codes, and forms for even coord
   - [`GET /get-check-in-front-page`](#get-get-check-in-front-page)
   - [`GET /get-form/<form_id>`](#get-get-formform_id)
   - [`GET /check-submissions`](#get-check-submissions)
+  - [`GET /check-in/<form_id>`](#get-check-inform_id)
 - [POST requests](#post-requests)
   - [`POST /create-check-in-form`](#post-create-check-in-form)
+  - [`POST /delete-form`](#post-delete-form)
 
 
 ## Quick Start
@@ -45,7 +47,7 @@ services:
     build: ./Event_Check_In_Microservice
     image: event-check-in-microservice
     ports:
-      - "5003:5003"
+      - "500X:500X"
     environment:
       FLASK_APP: app.py
       FLASK_ENV: development
@@ -89,7 +91,7 @@ docker-compose up --no-build event-check-in-microservice
 ```
 
 ## GET requests
-All the GET requests our microservice allows
+All the public GET requests our microservice allows
 
 ### `GET /health`
 This pings the microservice to ensure it is running and ready to recieve requests
@@ -134,7 +136,7 @@ form_id = "abcdefg-123456-xxxxxxxxxxxxx"
 
 def go_to_front_page():
     # Redirect to the front page for the check-in form
-    return redirect(f"http://localhost:5000/get-check-in-front-page?formID={form_id}")
+    return redirect(f"http://localhost:500X/get-check-in-front-page?formID={form_id}")
 ```
 ---
 
@@ -170,7 +172,7 @@ import requests
 form_id = "abcdefg-123456-xxxxxxxxxxxxx"
     
 def get_form_json():
-    url = f"http://localhost:5000/get-form/{form_id}"
+    url = f"http://localhost:500X/get-form/{form_id}"
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -224,8 +226,21 @@ def get_submissions(as_string=False):
 ```
 ---
 
+### `GET /check-in/<form_id>`
+Renders the check in form for the form's id = form_id
+
+**Example Code (Python)**
+```python
+from flask import redirect
+
+form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+
+def go_to_check_in_form():
+    return redirect(f"http://localhost:500X/check-in/{form_id}")
+```
+
 ## POST requests
-All the POST requests our microservice allows
+All the public POST requests our microservice allows
 
 ### `POST /create-check-in-form`
 This takes a JSON payload and creates a custom HTML form based on the given input.
@@ -309,8 +324,43 @@ payload = {
     }]
 }
 
-response = requests.post("http://localhost:5003/create-check-in-form", json=payload)
+response = requests.post("http://localhost:500X/create-check-in-form", json=payload)
 print(response)
 
+```
+---
+
+### `POST /delete-form`
+This deletes a form given an appropiate form id
+
+**Request Args**
+```bash
+# the ID / Token given on form initilization
+formID: abcdefg-123456-xxxxxxxxxxxxx
+```
+
+**Response (200)**
+```json 
+{
+    "message": "Form sucessfully deleted"
+}
+```
+
+**Example Code (Python)**
+```python
+import requests
+
+form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+
+def delete_form():
+    url = "http://localhost:500X/delete-form"
+    params = {"formID": form_id}
+    
+    response = requests.post(url, params=params)
+    
+    if response.status_code == 200:
+        print(response.json()["message"])
+    else:
+        print(f"Failed to delete form: {response.status_code}")
 ```
 ---

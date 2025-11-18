@@ -11,6 +11,7 @@ A microservice that generates check in links, QR codes, and forms for even coord
   - [`GET /get-form/<form_id>`](#get-get-formform_id)
   - [`GET /check-submissions`](#get-check-submissions)
 - [POST requests](#post-requests)
+  - [`POST /create-check-in-form`](#post-create-check-in-form)
 
 
 ## Quick Start
@@ -225,3 +226,91 @@ def get_submissions(as_string=False):
 
 ## POST requests
 All the POST requests our microservice allows
+
+### `POST /create-check-in-form`
+This takes a JSON payload and creates a custom HTML form based on the given input.
+
+**Request**
+```json
+"event_id": "string",
+"event_name": "string",
+"event_date": "DateTime",
+"fields": [
+    {
+        "field_id": "fld_X"
+        "field_type": "field_type",
+        "field_name": "field_name",
+        "label": "label",
+        "value": "value",
+        "required": "required",
+        "options": ["option1", "option2", "..."]
+    }
+],
+```
+
+|Field|Required|Notes|
+|-----|--------|-----|
+|event_id|yes|the id to your event you want to connect this form to|
+|event_name|yes|the name of your event|
+|event_date|yes|the date your event happens|
+
+**For Fields:**
+
+|Field|Required|Notes|
+|-----|--------|-----|
+|field_id|no|will be asigned automatically if not provided|
+|field_type|no|will be assigned "text" if not provided|
+|field_name|yes|the name that will show up with the responses|
+|label|yes|what the user will see next to the input|
+|value|no|assigned a default value to the input|
+|required|yes|if the field is required|
+|options|no|For fields like radio and checkbox, you can create them with multiple values|
+
+**Response (200):**
+```json
+{
+    "message": "form created successfully",
+    "form_id": "id",
+    "form_url_id": "url_id",
+    "form_expires_on": "delete_on date"
+}
+```
+
+**Example Code (Python)**
+```python
+import requests
+
+payload = {
+  "event_id": "evt_12346",
+  "event_name": "TEST SUBMIT",
+  "event_date": datetime.now(timezone.utc).isoformat(),
+  "fields": [
+    {
+      "field_id": "fld_1",
+      "field_type": "text",
+      "field_name": "full_name",
+      "label": "Full Name",
+      "required": True
+    },
+    {
+      "field_id": "fld_2",
+      "field_type": "email",
+      "field_name": "email",
+      "label": "Email",
+      "required": False
+    },
+    {
+      "field_id": "fld_17",
+      "field_type": "checkbox",
+      "field_name": "food_items",
+      "label": "Food Items:",
+      "options": ["Chicken", "Donuts", "Beans", "Cake", "Cupcakes"],
+      "required": False
+    }]
+}
+
+response = requests.post("http://localhost:5003/create-check-in-form", json=payload)
+print(response)
+
+```
+---

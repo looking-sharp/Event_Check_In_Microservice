@@ -238,6 +238,7 @@ form_id = "abcdefg-123456-xxxxxxxxxxxxx"
 def go_to_check_in_form():
     return redirect(f"http://localhost:500X/check-in/{form_id}")
 ```
+---
 
 ## POST requests
 All the public POST requests our microservice allows

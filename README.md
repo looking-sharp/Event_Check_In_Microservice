@@ -6,6 +6,10 @@ A microservice that generates check in links, QR codes, and forms for even coord
   - [Installation](#installation)
   - [Run](#run)
 - [GET requests](#get-requests)
+  - [`GET /health`](#get-health)
+  - [`GET /get-check-in-front-page`](#get-get-check-in-front-page)
+  - [`GET /get-form/<form_id>`](#get-get-formform_id)
+  - [`GET /check-submissions`](#get-check-submissions)
 - [POST requests](#post-requests)
 
 
@@ -85,6 +89,139 @@ docker-compose up --no-build event-check-in-microservice
 
 ## GET requests
 All the GET requests our microservice allows
+
+### `GET /health`
+This pings the microservice to ensure it is running and ready to recieve requests
+
+**Response (200):**
+```json
+{
+  "message": "Event Check In Microservice Online"
+}
+```
+
+**Example Code (Python)**
+``` python
+import requests
+
+def checkIsOnline() -> bool:
+    try:
+        response = requests.get("http://127.0.0.1:500X/health", timeout=2)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
+```
+---
+
+### `GET /get-check-in-front-page`
+This displays the front page for the check in form for your event. Has both a QR code, and link to the check in form.
+
+**Args**
+```bash
+# the ID / Token given on form initilization
+formID: abcdefg-123456-xxxxxxxxxxxxx
+```
+
+**Response (200)**
+Renders a html file with the information related to formID
+
+**Example Code (Python)**
+``` python
+from flask import redirect
+
+form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+
+def go_to_front_page():
+    # Redirect to the front page for the check-in form
+    return redirect(f"http://localhost:5000/get-check-in-front-page?formID={form_id}")
+```
+---
+
+### `GET /get-form/<form_id>`
+Returns the json version of the form where the form's url_id = form_id
+
+**Response (200)**
+```json
+"id": "form_id",
+"event_id": "event_id",
+"url_id": "url_id",
+"form_name": "form_name",
+"submissions": "submissions",
+"fields": [
+    {
+        "id": "id",
+        "field_id": "fld_X"
+        "field_type": "field_type",
+        "field_name": "field_name",
+        "label": "label",
+        "value": "value",
+        "required": "required",
+        "options": "options"
+    }
+],
+"status_code": 200
+```
+
+**Example Code (Python)**
+``` python
+import requests
+
+form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+    
+def get_form_json():
+    url = f"http://localhost:5000/get-form/{form_id}"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        form_data = response.json()
+        return form_data
+    else:
+        print(f"Failed to get form: {response.status_code}")
+        return None
+```
+---
+
+### `GET /check-submissions`
+
+**Args**
+```bash
+# the ID / Token given on form initilization
+formID: abcdefg-123456-xxxxxxxxxxxxx
+# if you want the submissions as a html string
+asString: True or False
+```
+
+**Response (200) (asString=False)**
+Renders a html file with the information related to form's submissions
+
+**Response (200) (asString=True)**
+```json
+{
+    "html": "<table>...HTML string with embedded CSS...</table>"
+}
+```
+
+**Example Code (Python)**
+```python
+import requests
+
+form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+
+def get_submissions(as_string=False):
+    url = "http://localhost:500X/check-submissions"
+    params = {
+        "formID": form_id,
+        "asString": as_string
+    }
+    response = requests.get(url, params=params)
+    
+    if response.status_code == 200:
+        if as_string:
+            return response.json().get("html")
+        else:
+            return response.text
+```
+---
 
 ## POST requests
 All the POST requests our microservice allows

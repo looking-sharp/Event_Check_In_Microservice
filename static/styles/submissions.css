@@ -51,7 +51,7 @@ tbody tr:nth-child(even) {
 }
 
 tbody tr:hover {
-    background-color: #e6ffe9;
+    background-color: #ddd;
 }
 
 @media screen and (max-width: 768px) {

@@ -21,36 +21,55 @@ CORS(app, resources={
 
 @app.route("/health")
 def health():
+    """ Check if the microserice is active """
     return jsonify({"message": "Event Check In Microservice Online"}), 200
 
-
-"""
-    Args:
-        Request (JSON):
-        {
-            "event_id": "string",
-            "event_name": "string",
-            "event_date": "DateTime",
-            fields = [
-                {
-                    "field_id": "string",
-                    "field_type": "string",
-                    "field_name": "string",
-                    "label": "string",
-                    "required": "boolean"
-                },
-                ...
-            ]
-        }
-"""
 @app.route("/create-check-in-form", methods=["POST"])
 def create_form():
+    """ HTTP Request that takes in an JSON package and creates 
+        a custom HTML form based on the reuest
+
+        Args:
+            Request (JSON):
+            {
+                "event_id": "string",
+                "event_name": "string",
+                "event_date": "DateTime",
+                fields = [
+                    {
+                        "field_id": "string",
+                        "field_type": "string",
+                        "field_name": "string",
+                        "label": "string",
+                        "required": "boolean"
+                    },
+                    ...
+                ]
+            }
+        
+        Returns (JSON):
+            {
+                "message": "form created successfully",
+                "form_id": form.id,
+                "form_url_id": form.url_id,
+                "form_expires_on": form.delete_on
+            }
+    """
     data = request.get_json(force=True, silent=True) or {}
     with get_db() as db:
         return create_form_from_json(db, data)
 
 @app.route("/get-check-in-front-page", methods=["GET"])
 def get_front_page():
+    """ HTTP route that renders the home page for a
+        form with given form ID
+
+        Args:
+            form_id (str): the form's ID
+        
+        Returns:
+            rendering of home page
+    """
     form_id = request.args.get("formID")
     if not form_id:
         return jsonify({"message": "no form ID provided"}), 400
@@ -73,11 +92,29 @@ def get_front_page():
 
 @app.route("/check-in/<form_id>", methods=["GET", "POST"])
 def check_in(form_id):
+    """ HTTP Request to get the check in form for a
+        given form_id
+
+        Args:
+            form_id (str): The url_id of the form to access
+        
+        Returns:
+            Rendering of the custom HTML form
+    """
     if request.method == "GET":
         return render_template("checkIn.html", form_id=form_id)
 
 @app.route("/get-form/<form_id>", methods=["GET"])
 def get_event(form_id):
+    """ HTTP request that gets the serialized version of a 
+        form 
+
+        Args:
+            form_id (str): The url_id of the form to access
+        
+        Returns (JSON):
+            form information
+    """
     with get_db() as db:
         form = db.query(Form).filter(Form.url_id == form_id).first()
 
@@ -109,6 +146,18 @@ def get_event(form_id):
 
 @app.route("/submit-check-in-form", methods=["POST"])
 def submit_check_in_form():
+    """ HTTP request that records the submissions from a form
+        and saves it to the database
+
+        Args:
+            form_id (str): The form's id
+
+        Returns (JSON):
+            {
+                "message": f"submission for: {form_id} complete", 
+                "submission": submission
+            }
+    """
     form_id = request.form.get("form_id")
     with get_db() as db:
         form = db.query(Form).filter(Form.url_id == form_id).first()
@@ -136,6 +185,15 @@ def submit_check_in_form():
     return jsonify({"message": f"submission for: {form_id} complete", "submission": submission}), 201
 
 def get_submissions_html(form_uuid) -> str:
+    """ HTTP request to get all the submissions from a form
+        and return the HTML file as a string with embedded CSS
+
+        Args:
+            form_uuid (str): the form's id
+
+        Returns (str):
+            The rendered HTML file with all submissions
+    """
     with get_db() as db:
         form = db.query(Form).filter(Form.id == form_uuid).first()
         if not form:
@@ -166,6 +224,18 @@ def get_submissions_html(form_uuid) -> str:
 
 @app.route("/check-submissions", methods=["GET"])
 def check_submissions():
+    """ HTTP request to get all the submissions from a form
+        and return the HTML file as a string with embedded CSS or
+        render them
+
+        Args:
+            form_id (str): the form's id
+            asString (bool): if it should be returned as a string or not
+
+        Returns:
+            Rendering HTML file with all submissions or
+            (str): the HTML file as a string
+    """
     form_id = request.args.get("formID")
     if not form_id:
         return jsonify({"message": "no form ID provided"}), 400
@@ -203,6 +273,16 @@ def check_submissions():
 
 @app.route("/delete-form", methods=["POST"])
 def delete_form():
+    """ HTTP request to delete a form with a given form id
+
+        Args: 
+            form_id (str): the form's id
+        
+        Returns (JSON):
+            {
+                "message": "Form sucessfully deleted"
+            }
+    """
     form_id = request.args.get("formID")
     if not form_id:
         return jsonify({"message": "no form ID provided"}), 400

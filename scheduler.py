@@ -20,8 +20,8 @@ def purge_logs(db):
 
 def purge_outdated_thread():
     """ This function is the main loop for the scheduler. It looks
-        through all the scheduled emails to find ones that need to be sent
-        ever minute, and attempts to send them.
+        through all the scheduled elogs to find ones that need to be
+        deleted
     """
     while True:
         try:

@@ -88,6 +88,7 @@ def create_url_id(session: Session, length: int = 12) -> str:
     
 
 def create_form_from_json(session: Session, data: dict):
+    """ Creates an from from json request, see app.py for more info """
     #Verify data
     expected_keys = ["event_id", "event_name", "event_date", "fields"]
     allowed_field_types = ["text", "password", "email", "number", "tel", "url", "date", "time", "datetime", "datetime-local", "color", "range", "textarea", "checkbox", "radio", "select", "file", "hidden"]

@@ -123,11 +123,11 @@ def submit_check_in_form():
         and saves it to the database
         
         Args: 
-            form_id (str): the form's id
+            url_id (str): the form's url id
     """
-    form_id = request.form.get("form_id")
+    url_id = request.form.get("url_id")
     with get_db() as db:
-        form = db.query(Form).filter(Form.url_id == form_id).first()
+        form = db.query(Form).filter(Form.url_id == url_id).first()
 
         if not form:
             return jsonify({"message": "Form not found", "status_code": 404}), 404
@@ -149,7 +149,7 @@ def submit_check_in_form():
         form.submissions.append(submission)
         db.commit()
 
-    return jsonify({"message": f"submission for: {form_id} complete", "submission": submission}), 201
+    return jsonify({"message": f"submission for: {url_id} complete", "submission": submission}), 201
 
 def get_submissions_html(form_uuid) -> str:
     """ HTTP request to get all the submissions from a form

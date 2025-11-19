@@ -8,9 +8,9 @@ A microservice that generates check in links, QR codes, and forms for even coord
 - [GET requests](#get-requests)
   - [`GET /health`](#get-health)
   - [`GET /get-check-in-front-page`](#get-get-check-in-front-page)
-  - [`GET /get-form/<form_id>`](#get-get-formform_id)
+  - [`GET /get-form/<url_id>`](#get-get-formurl_id)
   - [`GET /check-submissions`](#get-check-submissions)
-  - [`GET /check-in/<form_id>`](#get-check-inform_id)
+  - [`GET /check-in/<url_id>`](#get-check-inurl_id)
 - [POST requests](#post-requests)
   - [`POST /create-check-in-form`](#post-create-check-in-form)
   - [`POST /delete-form`](#post-delete-form)
@@ -140,8 +140,8 @@ def go_to_front_page():
 ```
 ---
 
-### `GET /get-form/<form_id>`
-Returns the json version of the form where the form's url_id = form_id
+### `GET /get-form/<url_id>`
+Returns the json version of the form where the form's url_id = url_id
 
 **Response (200)**
 ```json
@@ -169,10 +169,10 @@ Returns the json version of the form where the form's url_id = form_id
 ``` python
 import requests
 
-form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+url_id = "abc123"
     
 def get_form_json():
-    url = f"http://localhost:500X/get-form/{form_id}"
+    url = f"http://localhost:500X/get-form/{url_id}"
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -226,17 +226,17 @@ def get_submissions(as_string=False):
 ```
 ---
 
-### `GET /check-in/<form_id>`
-Renders the check in form for the form's id = form_id
+### `GET /check-in/<url_id>`
+Renders the check in form for the form's url_id = url_id
 
 **Example Code (Python)**
 ```python
 from flask import redirect
 
-form_id = "abcdefg-123456-xxxxxxxxxxxxx"
+url_id = "abc123"
 
 def go_to_check_in_form():
-    return redirect(f"http://localhost:500X/check-in/{form_id}")
+    return redirect(f"http://localhost:500X/check-in/{url_id}")
 ```
 ---
 

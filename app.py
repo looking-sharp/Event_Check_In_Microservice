@@ -21,7 +21,6 @@ CORS(app, resources={
 
 @app.route("/health")
 def health():
-    """ Check if the microserice is active """
     return jsonify({"message": "Event Check In Microservice Online"}), 200
 
 @app.route("/create-check-in-form", methods=["POST"])
@@ -46,14 +45,6 @@ def create_form():
                     ...
                 ]
             }
-        
-        Returns (JSON):
-            {
-                "message": "form created successfully",
-                "form_id": form.id,
-                "form_url_id": form.url_id,
-                "form_expires_on": form.delete_on
-            }
     """
     data = request.get_json(force=True, silent=True) or {}
     with get_db() as db:
@@ -63,12 +54,6 @@ def create_form():
 def get_front_page():
     """ HTTP route that renders the home page for a
         form with given form ID
-
-        Args:
-            form_id (str): the form's ID
-        
-        Returns:
-            rendering of home page
     """
     form_id = request.args.get("formID")
     if not form_id:
@@ -90,33 +75,21 @@ def get_front_page():
         return render_template("frontPage.html", svg_str=qr, url=url, event_name=form.form_name)
 
 
-@app.route("/check-in/<form_id>", methods=["GET", "POST"])
-def check_in(form_id):
+@app.route("/check-in/<url_id>", methods=["GET", "POST"])
+def check_in(url_id):
     """ HTTP Request to get the check in form for a
-        given form_id
-
-        Args:
-            form_id (str): The url_id of the form to access
-        
-        Returns:
-            Rendering of the custom HTML form
+        given url_id
     """
     if request.method == "GET":
-        return render_template("checkIn.html", form_id=form_id)
+        return render_template("checkIn.html", url_id=url_id)
 
-@app.route("/get-form/<form_id>", methods=["GET"])
-def get_event(form_id):
+@app.route("/get-form/<url_id>", methods=["GET"])
+def get_event(url_id):
     """ HTTP request that gets the serialized version of a 
         form 
-
-        Args:
-            form_id (str): The url_id of the form to access
-        
-        Returns (JSON):
-            form information
     """
     with get_db() as db:
-        form = db.query(Form).filter(Form.url_id == form_id).first()
+        form = db.query(Form).filter(Form.url_id == url_id).first()
 
         if not form:
             return jsonify({"message": "Form not found", "status_code": 404}), 404
@@ -148,15 +121,9 @@ def get_event(form_id):
 def submit_check_in_form():
     """ HTTP request that records the submissions from a form
         and saves it to the database
-
-        Args:
-            form_id (str): The form's id
-
-        Returns (JSON):
-            {
-                "message": f"submission for: {form_id} complete", 
-                "submission": submission
-            }
+        
+        Args: 
+            form_id (str): the form's id
     """
     form_id = request.form.get("form_id")
     with get_db() as db:
@@ -187,12 +154,6 @@ def submit_check_in_form():
 def get_submissions_html(form_uuid) -> str:
     """ HTTP request to get all the submissions from a form
         and return the HTML file as a string with embedded CSS
-
-        Args:
-            form_uuid (str): the form's id
-
-        Returns (str):
-            The rendered HTML file with all submissions
     """
     with get_db() as db:
         form = db.query(Form).filter(Form.id == form_uuid).first()
@@ -226,15 +187,7 @@ def get_submissions_html(form_uuid) -> str:
 def check_submissions():
     """ HTTP request to get all the submissions from a form
         and return the HTML file as a string with embedded CSS or
-        render them
-
-        Args:
-            form_id (str): the form's id
-            asString (bool): if it should be returned as a string or not
-
-        Returns:
-            Rendering HTML file with all submissions or
-            (str): the HTML file as a string
+        render them.
     """
     form_id = request.args.get("formID")
     if not form_id:
@@ -277,11 +230,6 @@ def delete_form():
 
         Args: 
             form_id (str): the form's id
-        
-        Returns (JSON):
-            {
-                "message": "Form sucessfully deleted"
-            }
     """
     form_id = request.args.get("formID")
     if not form_id:
